@@ -1,0 +1,6 @@
+# macOS File
+.DS_Store
+
+venv/
+.idea
+.xml
