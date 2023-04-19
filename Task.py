@@ -5,7 +5,7 @@ class Task(object):
 
     def __init__(self, task_num):
         self.task_num = task_num #1, 2, 3
-        self.model_dir = f'/models/baseline/Task{self.task_num}.model' #location to save the model
+        self.model_dir = f'models/baseline/Task{self.task_num}.model' #location to save the model
         self.testSolutionDir = f'/solution/CEBaseline/Task{self.task_num}' #location to save the predicted labels for test data
         self.datasetTrainFilePath = os.getcwd() + f'/release/pan23-multi-author-analysis-dataset{self.task_num}/pan23-multi-author-analysis-dataset{self.task_num}-train'
         self.datasetValidationFilePath = os.getcwd() + f'/release/pan23-multi-author-analysis-dataset{self.task_num}/pan23-multi-author-analysis-dataset{self.task_num}-validation'

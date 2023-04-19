@@ -22,11 +22,6 @@ class CEBaseline():
         train(inputTrainingData, inputLabels, self.task.model_dir, ppm_order=5)
 
     def testModel(self):
-        testInputData = []
         testTextDataDict = self.task.paragraphs['test']
-        for k in testTextDataDict.keys():
-            paragraphs = testTextDataDict[k]
-            testInputData.append(paragraphs)
-
         modelPath = os.path.abspath(os.getcwd()) + os.sep + self.task.model_dir
-        predictedValues = test(modelPath, testInputData, radius=0.01)
+        predictedValues = test(modelPath, testTextDataDict, radius=0.01)

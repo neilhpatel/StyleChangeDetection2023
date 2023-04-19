@@ -286,16 +286,18 @@ def test(model_dir, testData, radius):
     start_time = time.time()
     print('Loading prediction model for testing from ' + str(model_dir))
     model = load(model_dir)
-    answers = []
     count1 = 0
     count0 = 0
     countUnsure = 0
-    for datapoint in testData:
-        numParagraphs = len(datapoint)
+    outputDict = {}
+    for key in (testData.keys()):
+        paragraphs = testData[key]
+        numParagraphs = len(testData[key])
+        predicted = []
         for i in range(numParagraphs - 1):
-            D = distance(datapoint[i], datapoint[i + 1], ppm_order=5)
+            D = distance(paragraphs[i], paragraphs[i + 1], ppm_order=5)
             predictedProbabilities = model.predict_proba([D])
-            predictedClass = model.predict([D])
+            predictedClass = model.predict([D])[0]
             if predictedClass == 1:
                 count1 += 1
             else:
@@ -304,13 +306,15 @@ def test(model_dir, testData, radius):
                 #model equally predicts either class
                 countUnsure += 1
 
-            answers.append(predictedClass)
+            predicted.append(predictedClass)
+
+        outputDict[key] = predicted
 
     print('Elapsed time to test model:', time.time() - start_time)
     print("Count of 0: " + str(count0))
     print("Count of 1: " + str(count1))
     print("Count Unsure: " + str(countUnsure))
-    return answers
+    return outputDict
 
 
 def main():
