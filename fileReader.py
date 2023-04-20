@@ -1,5 +1,6 @@
 import json
 import numpy as np
+import os
 
 class fileReader:
 
@@ -108,4 +109,16 @@ class fileReader:
 
 
 
-    
+    def writeSolutionFolder(self, task, predictedValues):
+        if type(predictedValues) != dict:
+            raise AssertionError(f'Cannot write solution folder with given input of type {type(predictedValues)}')
+        #'solution-problem-*.json'
+        outputDir = os.path.abspath(os.getcwd() + os.sep + task.testSolutionDir)
+        for k, v in predictedValues.items():
+            fileName = f'solution-problem-{k}.json'
+            filePath = outputDir + os.sep + fileName
+            v = [int(val) for val in v] #convert Type int64 to int so value is JSON serializable
+            key = 'changes'
+            dictionaryToWrite = {key : v}
+            with open(filePath, "w") as f:
+                json.dump(dictionaryToWrite, f)
