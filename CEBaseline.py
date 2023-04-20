@@ -1,4 +1,8 @@
-from baselineCompressor import train, test
+from baselineCompressor import train as baseline_compressor_train
+from baselineCompressor import test as baseline_compressor_test
+
+from baselineCNGDist import train as baseline_cngdist_train
+from baselineCNGDist import test as baseline_cngdist_test
 
 import os
 
@@ -7,7 +11,7 @@ class CEBaseline():
     def __init__(self, task):
         self.task = task
 
-    def createModel(self):
+    def createModel(self, baseline_type):
         inputTrainingData = []
         inputLabels = []
         trainingTextDataDict = self.task.paragraphs['train']
@@ -19,9 +23,30 @@ class CEBaseline():
             inputTrainingData.append(paragraphs)
             inputLabels.append(groundTruth)
 
-        train(inputTrainingData, inputLabels, self.task.model_dir, ppm_order=5)
+        if baseline_type == "compressor":
+            baseline_compressor_train(inputTrainingData, inputLabels, f'{self.task.compressor_model_dir}/Task{self.task.task_num}.model', ppm_order=5)
+        elif baseline_type == "cngdist":
+            baseline_cngdist_train(inputTrainingData, inputLabels, self.task.cngdist_model_dir, self.task.task_num, vocab_size=3000, ngram_size=4, num_iterations=0, dropout=0.5)
+        else:
+            raise AssertionError("invalid baseline_type")
 
-    def testModel(self):
+    def testModel(self, baseline_type):
         testTextDataDict = self.task.paragraphs['test']
-        modelPath = os.path.abspath(os.getcwd()) + os.sep + self.task.model_dir
-        predictedValues = test(modelPath, testTextDataDict, radius=0.01)
+        if baseline_type == 'compressor':
+            modelPath = os.path.abspath(os.getcwd()) + os.sep + self.task.compressor_model_dir
+            predictedValues = baseline_compressor_test(f'{modelPath}/Task{self.task.task_num}.model', testTextDataDict, radius=0.01)
+        elif baseline_type == 'cngdist':
+            modelPath = os.path.abspath(os.getcwd()) + os.sep + self.task.cngdist_model_dir
+            predictedValues = baseline_cngdist_test(modelPath, testTextDataDict, self.task.task_num, num_iterations=0) # dict of doc id map to dict of pair ids map to preds
+            test_dict = self.task.data_split_dict['test']
+            num_pairs_ground_truth = 0
+            num_pairs_pred_vals = 0
+            for key in test_dict:
+                num_pairs_ground_truth += len(test_dict[key]['changes'])
+                num_pairs_pred_vals += len(predictedValues[key])
+                if len(predictedValues[key]) != len(test_dict[key]['changes']):
+                    print("unequal num preds and ground truth for key", key)
+            print("num_pairs_ground_truth:", num_pairs_ground_truth)
+            print("num_pairs_pred_vals:", num_pairs_pred_vals)
+        else:
+            raise AssertionError("invalid baseline_type")
