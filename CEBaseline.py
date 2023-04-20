@@ -25,3 +25,4 @@ class CEBaseline():
         testTextDataDict = self.task.paragraphs['test']
         modelPath = os.path.abspath(os.getcwd()) + os.sep + self.task.model_dir
         predictedValues = test(modelPath, testTextDataDict, radius=0.01)
+        self.task.fileReader.writeSolutionFolder(self.task, predictedValues)
