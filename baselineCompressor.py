@@ -256,6 +256,7 @@ def distance(text1, text2, ppm_order=5):
 
 # Builds a prediction model from the training dataset
 def train(inputData, truthLabels, model_dir, ppm_order=5):
+    # print(truthLabels)
     if len(inputData) != len(truthLabels):
         raise AssertionError('Input data and ground truth dimension mismatch')
     start_time = time.time()
