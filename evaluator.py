@@ -3,7 +3,7 @@ import glob
 import json
 import os
 from itertools import chain
-from sklearn.metrics import f1_score
+from sklearn.metrics import f1_score, precision_score, recall_score
 from scipy.optimize import linear_sum_assignment
 import numpy as np
 from scipy.sparse import coo_matrix
@@ -55,19 +55,47 @@ def extract_task_results(truth: dict, solutions: dict, task: str) -> tuple:
     return all_truth, all_solutions
 
 
-def compute_score_multiple_predictions(truth_values: dict, solution_values: dict, key: str, labels: list) -> float:
-    """ compute f1 score for list of predictions
+def compute_score_multiple_predictions(truth_values: dict, solution_values: dict, key: str, labels: list) -> dict:
+    """ compute f1, precision, recall (weighted, macro, micro for each) score for list of predictions
     :param labels: labels used for the predictions
     :param truth_values: list of ground truth values for all problem-ids
     :param solution_values: list of solutions for all problem-ids
     :param key: key of solutions to compute score for (=task)
-    :return: f1 score
+    :return: dict of f1, precision, recall (weighted, macro, micro for each)
     """
     # extract truth and solution values in suitable format
     truth, solution = extract_task_results(truth_values, solution_values, key)
+
     # lists have to be flattened first
-    return f1_score(list(chain.from_iterable(truth)), list(chain.from_iterable(solution)), average='macro',
+    macro_f1 = f1_score(list(chain.from_iterable(truth)), list(chain.from_iterable(solution)), average='macro',
                     labels=labels, zero_division=0)
+    micro_f1 = f1_score(list(chain.from_iterable(truth)), list(chain.from_iterable(solution)), average='micro',
+                    labels=labels, zero_division=0)
+    weighted_f1 = f1_score(list(chain.from_iterable(truth)), list(chain.from_iterable(solution)), average='weighted',
+                    labels=labels, zero_division=0)
+    
+    macro_precision = precision_score(list(chain.from_iterable(truth)), list(chain.from_iterable(solution)), average='macro',
+                    labels=labels, zero_division=0)
+    micro_precision = precision_score(list(chain.from_iterable(truth)), list(chain.from_iterable(solution)), average='micro',
+                    labels=labels, zero_division=0)
+    weighted_precision = precision_score(list(chain.from_iterable(truth)), list(chain.from_iterable(solution)), average='weighted',
+                    labels=labels, zero_division=0)
+    
+    macro_recall = recall_score(list(chain.from_iterable(truth)), list(chain.from_iterable(solution)), average='macro',
+                    labels=labels, zero_division=0)
+    micro_recall = recall_score(list(chain.from_iterable(truth)), list(chain.from_iterable(solution)), average='micro',
+                    labels=labels, zero_division=0)
+    weighted_recall = recall_score(list(chain.from_iterable(truth)), list(chain.from_iterable(solution)), average='weighted',
+                    labels=labels, zero_division=0)
+    return {'macro_f1': macro_f1, 
+            'micro_f1': micro_f1, 
+            'weighted_f1': weighted_f1, 
+            'macro_precision': macro_precision, 
+            'micro_precision': micro_precision, 
+            'weighted_precision': weighted_precision,
+            'macro_recall': macro_recall,
+            'micro_recall': micro_recall,
+            'weighted_recall': weighted_recall}
 
 
 def write_output(filename: str, k: str, v: str):
@@ -107,10 +135,10 @@ def main(args, EV_OUT, taskNum):
         os.path.join(args.truth))
 
     try:
-        taskF1 = compute_score_multiple_predictions(
+        taskMetricsDict = compute_score_multiple_predictions(
             taskTruth, taskSolutions, 'changes', labels=[0, 1])
     except KeyError as _:
-        taskF1 = None
+        taskMetricsDict = None
         print("No solution file found for one or more problems, please check the output. Exiting task 1.")
 
     # task2_solutions = read_solution_files(
@@ -136,9 +164,8 @@ def main(args, EV_OUT, taskNum):
     #     task3_f1 = None
     #     print("No solution file found for one or more problems, please check the output. Exiting task 3.")
 
-    for k, v in {
-        f'task{args.taskNum}_f1_score': taskF1,}.items():
-        write_output(os.path.join(args.output, EV_OUT), k, v),
+    for k, v in taskMetricsDict.items():
+        write_output(os.path.join(args.output, EV_OUT), f'task{args.taskNum}_{k}', v)
 
 def evaluatorMainWrapper(predictionsPath, groundTruthPath, outputPath, model, taskNum):
     parser = argparse.ArgumentParser(description='Evaluation script AV@PAN2023')
