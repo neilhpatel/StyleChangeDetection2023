@@ -1,5 +1,6 @@
 import json
 import numpy as np
+import os
 
 class fileReader:
 
@@ -105,7 +106,25 @@ class fileReader:
             task.data_split_dict['test'][file_num] = task.JSONContents['val'][f'truth-problem-{file_num}.json']
             # task.txt_truth_dict['test'][f'problem-{file_num}.txt'] = f'truth-problem-{file_num}.json'
 
+    '''
+    Write output to solution folder
+    '''
+    def writeSolutionFolder(self, task, predictedValues, model):
+        if type(predictedValues) != dict:
+            raise AssertionError(f'Cannot write solution folder with given input of type {type(predictedValues)}')
+        currDir = os.getcwd()
+        if model == "compressor":
+            outputDir = os.path.abspath(currDir + os.sep + task.testSolutionCompressorDir)
+        elif model == "cngdist":
+            outputDir = os.path.abspath(currDir + os.sep + task.testSolutioncngdistDir)
+        else:
+            raise AssertionError("invalid passed in model type")
 
-
-
-    
+        for k, v in predictedValues.items():
+            fileName = f'solution-problem-{k}.json'
+            filePath = outputDir + os.sep + fileName # Format of output file is 'solution-problem-*.json'
+            v = [int(val) for val in v] #convert Type int64 to int so value is JSON serializable
+            key = 'changes'
+            dictionaryToWrite = {key : v}
+            with open(filePath, "w") as f:
+                json.dump(dictionaryToWrite, f)

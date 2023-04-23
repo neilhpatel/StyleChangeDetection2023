@@ -7,7 +7,8 @@ class Task(object):
         self.task_num = task_num #1, 2, 3
         self.compressor_model_dir = f'models/baseline/compressor' #location to save the model
         self.cngdist_model_dir = f'models/baseline/cngdist' #location to save the model
-        self.testSolutionDir = f'/solution/CEBaseline/Task{self.task_num}' #location to save the predicted labels for test data
+        self.testSolutionCompressorDir = f'solution/baseline/compressor/Task{self.task_num}' #location to save the predicted labels for test data for compressor model
+        self.testSolutioncngdistDir = f'solution/baseline/cngdist/Task{self.task_num}' #location to save the predicted labels for test data for cngdist model
         self.datasetTrainFilePath = os.getcwd() + f'/release/pan23-multi-author-analysis-dataset{self.task_num}/pan23-multi-author-analysis-dataset{self.task_num}-train'
         self.datasetValidationFilePath = os.getcwd() + f'/release/pan23-multi-author-analysis-dataset{self.task_num}/pan23-multi-author-analysis-dataset{self.task_num}-validation'
         self.paragraphs = {'train': {}, 'val': {}, 'test': {}}  # maps txt file to a list of paragraph text (dict[str, list])

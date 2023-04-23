@@ -56,7 +56,7 @@ from sklearn.metrics import f1_score, precision_score, recall_score
 from scipy.spatial.distance import cosine
 import pickle
 
-from evaluator import evaluate_all
+from cngdistEval import evaluate_all
 
 
 def cosine_sim(a, b):
