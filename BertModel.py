@@ -5,7 +5,8 @@ import torch.nn.functional as F
 import numpy as np
 import re
 import os
-from evaluator import compute_score_multiple_predictions
+from evaluator import compute_score_multiple_predictions, read_solution_files, read_ground_truth_files, write_output
+import json
 
 # first, install the hugging face transformer package in your colab
 # pip install transformers
@@ -219,7 +220,7 @@ def print_statistics(self):
             taskTruth, taskSolutions, 'changes', labels=[0, 1])
 
     for k, v in taskMetricsDict.items():
-        write_output(os.path.join(args.output, EV_OUT), f'task{args.taskNum}_{k}', v)
+        write_output(f'task{args.taskNum}_{k}', v)
 
 # def predict_authorships(paragraphs):
 #   paragraphs_score = []
