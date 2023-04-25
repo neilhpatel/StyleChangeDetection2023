@@ -5,6 +5,7 @@ import torch.nn.functional as F
 import numpy as np
 import re
 import os
+from evaluator import compute_score_multiple_predictions
 
 # first, install the hugging face transformer package in your colab
 # pip install transformers
@@ -70,7 +71,7 @@ class BertModel(nn.Module):
         self.train(
             inputTrainingData,
             inputLabels,
-            f"models/bert_model/Task{self.task.task_num}.model",
+            f"/content/Task{self.task.task_num}.model",
         )
 
     def train(self, inputTrainingData, inputLabels, modelPath):
@@ -96,13 +97,13 @@ class BertModel(nn.Module):
             loss = loss_function(torch.FloatTensor(flat_output).to(self.device), torch.FloatTensor(flat_target).to(self.device))
             loss = torch.autograd.Variable(loss, requires_grad = True)
             loss.backward()
-            torch.nn.utils.clip_grad_norm_(self.parameters(), 1.0)
+            torch.nn.utils.clip_grad_norm_(self.parameters(), 10.0)
             self.optimizer.step()
             print("loss: ", loss.item())
             epoch_loss += loss.item()
 
         path = os.path.abspath(os.getcwd())
-        dump(self, path + os.sep + modelPath)
+        dump(self, modelPath)
 
     def forward(self, inputTrainingData):
 
@@ -116,13 +117,17 @@ class BertModel(nn.Module):
                 )
                 paragraph_score = torch.zeros(self.bert_model.config.hidden_size)
                 for sentence in sentences:
-                    if len(sentence.split(' ')) > 512:
-                        print("too long sentence")
+                    # print(len(re.split(' |.', sentence)))
+                    # print(sentence)
+                    if len(re.split(' |.', sentence)) > 512:
+                        # print("too long sentence")
                         result = []
-                        randomInd = np.random.choice(len(sentence), 512)
+                        randomInd = np.random.choice(len(sentence), 505)
                         sortedInd = sorted(randomInd)
                         for ind in sortedInd:
                             result.append(sentence[ind])
+
+                        sentence = ' '.join(result)
 
                     #     sentence = ' '.join(result)
                     # print(tokenizer(sentence))
@@ -150,12 +155,65 @@ class BertModel(nn.Module):
 
 
 # #make predictions
-# def predict(self):
+def predict(self):
+    for paragraphs, key in self.task.paragraphs['test']:
+        paragraphs_score = []
+        for paragraph in paragraphs:
+            sentences = re.split("(?<!\w\.\w.)(?<![A-Z][a-z]\.)(?<=\.|\?)\s", paragraph)
+            paragraph_score = torch.zeros(self.bert_model.config.hidden_size)
+            for sentence in sentences:
+                # print(len(re.split(' |.', sentence)))
+                # print(sentence)
+                if len(re.split(' |.', sentence)) > 512:
+                    # print("too long sentence")
+                    result = []
+                    randomInd = np.random.choice(len(sentence), 505)
+                    sortedInd = sorted(randomInd)
+                    for ind in sortedInd:
+                        result.append(sentence[ind])
 
+                    sentence = ' '.join(result)
 
-# #use predictions to write to solution folder
-# def writeSolutionFolder(self, task, predictedValues):
+                bert_output = self.bert_model(
+                    tokenizer.encode(sentence, return_tensors="pt")
+                )
+                last_hidden_state = bert_output.last_hidden_state
+                sentence_score = torch.sum(last_hidden_state[0], axis=0)
+                paragraph_score = torch.add(paragraph_score, sentence_score)
+            paragraph_score = paragraph_score / len(sentences)
+            paragraphs_score.append(paragraph_score)
 
+        file_preds = []
+        for i in range(len(paragraphs_score) - 1):
+            cls_output = self.classifier(torch.cat((paragraphs_score[i], paragraphs_score[i + 1])))
+            file_preds.append(round(self.sigmoid(cls_output).item()))
+
+        self.preds[key] = file_preds
+
+#use predictions to write to solution folder
+def writeSolutionFolder(self, task):
+    for k, v in self.preds.items():
+        fileName = f'solution-problem-{k}.json'
+        outputDir = f'/content/solution/BertModel/Task{self.task.task_num}'
+        filePath = outputDir + os.sep + fileName # Format of output file is 'solution-problem-*.json'
+        v = [int(val) for val in v] #convert Type int64 to int so value is JSON serializable
+        key = 'changes'
+        dictionaryToWrite = {key : v}
+        with open(filePath, "w") as f:
+            json.dump(dictionaryToWrite, f)
+
+def print_statistics(self):
+
+    taskSolutions = read_solution_files(
+        f'/content/solution/BertModel/Task{self.task.task_num}')
+    taskTruth = read_ground_truth_files(
+        os.path.join(self.task.datasetValidationFilePath))
+
+    taskMetricsDict = compute_score_multiple_predictions(
+            taskTruth, taskSolutions, 'changes', labels=[0, 1])
+
+    for k, v in taskMetricsDict.items():
+        write_output(os.path.join(args.output, EV_OUT), f'task{args.taskNum}_{k}', v)
 
 # def predict_authorships(paragraphs):
 #   paragraphs_score = []
