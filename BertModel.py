@@ -154,44 +154,47 @@ class BertModel(nn.Module):
         return logits
 
 
-# #make predictions
-def predict(self):
-    for paragraphs, key in self.task.paragraphs['test']:
-        paragraphs_score = []
-        for paragraph in paragraphs:
-            sentences = re.split("(?<!\w\.\w.)(?<![A-Z][a-z]\.)(?<=\.|\?)\s", paragraph)
-            paragraph_score = torch.zeros(self.bert_model.config.hidden_size)
-            for sentence in sentences:
-                # print(len(re.split(' |.', sentence)))
-                # print(sentence)
-                if len(re.split(' |.', sentence)) > 512:
-                    # print("too long sentence")
-                    result = []
-                    randomInd = np.random.choice(len(sentence), 505)
-                    sortedInd = sorted(randomInd)
-                    for ind in sortedInd:
-                        result.append(sentence[ind])
+    # #make predictions
+    def predict(self):
+        for paragraphs, key in self.task.paragraphs['test']:
+            paragraphs_score = []
+            for paragraph in paragraphs:
+                sentences = re.split("(?<!\w\.\w.)(?<![A-Z][a-z]\.)(?<=\.|\?)\s", paragraph)
+                paragraph_score = torch.zeros(self.bert_model.config.hidden_size)
+                for sentence in sentences:
+                    # print(len(re.split(' |.', sentence)))
+                    # print(sentence)
+                    if len(re.split(' |.', sentence)) > 512:
+                        # print("too long sentence")
+                        result = []
+                        randomInd = np.random.choice(len(sentence), 505)
+                        sortedInd = sorted(randomInd)
+                        for ind in sortedInd:
+                            result.append(sentence[ind])
 
-                    sentence = ' '.join(result)
+                        sentence = ' '.join(result)
 
-                bert_output = self.bert_model(
-                    tokenizer.encode(sentence, return_tensors="pt")
-                )
-                last_hidden_state = bert_output.last_hidden_state
-                sentence_score = torch.sum(last_hidden_state[0], axis=0)
-                paragraph_score = torch.add(paragraph_score, sentence_score)
-            paragraph_score = paragraph_score / len(sentences)
-            paragraphs_score.append(paragraph_score)
+                    bert_output = self.bert_model(
+                        tokenizer.encode(sentence, return_tensors="pt")
+                    )
+                    last_hidden_state = bert_output.last_hidden_state
+                    sentence_score = torch.sum(last_hidden_state[0], axis=0)
+                    paragraph_score = torch.add(paragraph_score, sentence_score)
+                paragraph_score = paragraph_score / len(sentences)
+                paragraphs_score.append(paragraph_score)
 
-        file_preds = []
-        for i in range(len(paragraphs_score) - 1):
-            cls_output = self.classifier(torch.cat((paragraphs_score[i], paragraphs_score[i + 1])))
-            file_preds.append(round(self.sigmoid(cls_output).item()))
+            file_preds = []
+            for i in range(len(paragraphs_score) - 1):
+                cls_output = self.classifier(torch.cat((paragraphs_score[i], paragraphs_score[i + 1])))
+                file_preds.append(round(self.sigmoid(cls_output).item()))
 
-        self.preds[key] = file_preds
+            self.preds[key] = file_preds
+
+        return self.preds
+
 
 #use predictions to write to solution folder
-def writeSolutionFolder(self, task):
+def writeSolutionFolder(self, task, preds):
     for k, v in self.preds.items():
         fileName = f'solution-problem-{k}.json'
         outputDir = f'/content/solution/BertModel/Task{self.task.task_num}'
@@ -203,9 +206,9 @@ def writeSolutionFolder(self, task):
             json.dump(dictionaryToWrite, f)
 
 def print_statistics(self):
-
-    self.predict()
-    self.writeSolutionFolder(self.task.task_num)
+    model = load(f"/content/Task{self.task.task_num}.model")
+    preds = model.predict()
+    self.writeSolutionFolder(self.task.task_num, preds)
 
     taskSolutions = read_solution_files(
         f'/content/solution/BertModel/Task{self.task.task_num}')
