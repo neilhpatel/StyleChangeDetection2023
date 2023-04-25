@@ -204,6 +204,9 @@ def writeSolutionFolder(self, task):
 
 def print_statistics(self):
 
+    self.predict()
+    self.writeSolutionFolder(self.task.task_num)
+
     taskSolutions = read_solution_files(
         f'/content/solution/BertModel/Task{self.task.task_num}')
     taskTruth = read_ground_truth_files(
