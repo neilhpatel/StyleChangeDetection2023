@@ -40,6 +40,8 @@ class BertModel(nn.Module):
           self.device = torch.device("cuda")
         else:
           self.device = torch.device("cpu")
+        print("Using device:", self.device)
+        
 
     def createModel(self):
         print("createModel")
@@ -114,6 +116,15 @@ class BertModel(nn.Module):
                 )
                 paragraph_score = torch.zeros(self.bert_model.config.hidden_size)
                 for sentence in sentences:
+                    if len(sentence.split(' ')) > 512:
+                        print("too long sentence")
+                        result = []
+                        randomInd = np.random.choice(len(sentence), 512)
+                        sortedInd = sorted(randomInd)
+                        for ind in sortedInd:
+                            result.append(sentence[ind])
+
+                    #     sentence = ' '.join(result)
                     # print(tokenizer(sentence))
                     # print(tokenizer.encode(sentence))
                     # print(tokenizer.encode(sentence, return_tensors='pt'))
