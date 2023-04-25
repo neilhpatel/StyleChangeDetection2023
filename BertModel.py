@@ -36,6 +36,10 @@ class BertModel(nn.Module):
     def __init__(self, task):
         super().__init__()
         self.task = task
+        if torch.cuda.is_available():
+          self.device = torch.device("cuda")
+        else:
+          self.device = torch.device("cpu")
 
     def createModel(self):
         print("createModel")
@@ -87,7 +91,7 @@ class BertModel(nn.Module):
             flat_output = [item for sublist in output for item in sublist]
             flat_target = [item for sublist in target for item in sublist]
             loss_function = torch.nn.CrossEntropyLoss()
-            loss = loss_function(torch.FloatTensor(flat_output), torch.FloatTensor(flat_target))
+            loss = loss_function(torch.FloatTensor(flat_output).to(self.device), torch.FloatTensor(flat_target).to(self.device))
             loss = torch.autograd.Variable(loss, requires_grad = True)
             loss.backward()
             torch.nn.utils.clip_grad_norm_(self.parameters(), 1.0)
