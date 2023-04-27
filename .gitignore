@@ -5,6 +5,3 @@ venv/
 .idea
 .xml
 __pycache__
-models/
-.prototext
-results/params_results.txt

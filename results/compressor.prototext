@@ -1,0 +1,108 @@
+measure{
+  key: "task1_macro_f1"
+  value: "0.7850472669449413"
+}
+measure{
+  key: "task1_micro_f1"
+  value: "0.9154879773691655"
+}
+measure{
+  key: "task1_weighted_f1"
+  value: "0.9078498241032894"
+}
+measure{
+  key: "task1_macro_precision"
+  value: "0.8534539884971243"
+}
+measure{
+  key: "task1_micro_precision"
+  value: "0.9154879773691655"
+}
+measure{
+  key: "task1_weighted_precision"
+  value: "0.908624868823288"
+}
+measure{
+  key: "task1_macro_recall"
+  value: "0.7447482595205552"
+}
+measure{
+  key: "task1_micro_recall"
+  value: "0.9154879773691655"
+}
+measure{
+  key: "task1_weighted_recall"
+  value: "0.9154879773691655"
+}
+measure{
+  key: "task2_macro_f1"
+  value: "0.5854375010427324"
+}
+measure{
+  key: "task2_micro_f1"
+  value: "0.6056518034649248"
+}
+measure{
+  key: "task2_weighted_f1"
+  value: "0.59822905961729"
+}
+measure{
+  key: "task2_macro_precision"
+  value: "0.5930389709421954"
+}
+measure{
+  key: "task2_micro_precision"
+  value: "0.6056518034649248"
+}
+measure{
+  key: "task2_weighted_precision"
+  value: "0.5988767071615584"
+}
+measure{
+  key: "task2_macro_recall"
+  value: "0.5862428207697712"
+}
+measure{
+  key: "task2_micro_recall"
+  value: "0.6056518034649248"
+}
+measure{
+  key: "task2_weighted_recall"
+  value: "0.6056518034649248"
+}
+measure{
+  key: "task3_macro_f1"
+  value: "0.3619215119264895"
+}
+measure{
+  key: "task3_micro_f1"
+  value: "0.5223735408560312"
+}
+measure{
+  key: "task3_weighted_f1"
+  value: "0.37795115206203056"
+}
+measure{
+  key: "task3_macro_precision"
+  value: "0.48379145215750213"
+}
+measure{
+  key: "task3_micro_precision"
+  value: "0.5223735408560312"
+}
+measure{
+  key: "task3_weighted_precision"
+  value: "0.48582001526926755"
+}
+measure{
+  key: "task3_macro_recall"
+  value: "0.49850291483962983"
+}
+measure{
+  key: "task3_micro_recall"
+  value: "0.5223735408560312"
+}
+measure{
+  key: "task3_weighted_recall"
+  value: "0.5223735408560312"
+}
