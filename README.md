@@ -34,7 +34,7 @@ Note that the command above will take time to execute since two models are being
 ### Hyperparameter Finetuning
 You can also directly finetune the hyperparameters from the command line when creating CNG-Dist and Text Compression models.
 
-Text Compression has a hyperparameter for character context window size or ppm order (-ppm). The default value is 5.
+Text Compression has a hyperparameter for character context window size or ppm_order (-ppm). The default value is 5.
 
 CNG-Dist has the following hyperparameters:
 - Vocabulary Size: maximum features considered for CNG Dist model ordered by term frequency across the corpus (-vocab_size). The default value is 3000.
@@ -46,7 +46,7 @@ All hyperparameters are optional command line arguments, so if not provided, the
 
 ```python main.py -dropout .25 -ngram 6 -iter 2 -ppm 8```
 
-will train a Text Compression model with ppm = 8 and a CNG-Dist model with ngram = 6, dropout = .25, iterations = 2, and vocab size = 3000.
+will train a Text Compression model with ppm_order = 8 and a CNG-Dist model with ngram = 6, dropout = .25, iterations = 2, and vocab size = 3000.
 
 
 ### Evaluation Metrics
