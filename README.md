@@ -23,8 +23,12 @@ This command will
 1. Read the entire dataset and split the data into train/val/test split for each task
 2. Create and train a Naive Character N-Gram Distance-based (CNG-Dist) and Text Compression model for each task using default hyperparameters (see values below).
 These models are saved under ```../models/baseline/{modeltype}```
+
+    If an existing model already exists in the folder, it will be overwritten.
 3. Make predictions on the testing dataset for each task by each model with the results being stored in 
 ```../solution/baseline/{modeltype}/{taskNumber}```
+
+    Existing solution files will be overwritten for the evaluation step.
 4. Evaluate performance by reading through the predictions and comparing to the ground truth. 
 Micro/Macro/Weighted precision, recall, and F1 values are calculated for each model for each task. 
 All metric results can be found in ```../results/{modeltype}.prototext``` but weighted metrics were used for the report.
@@ -52,8 +56,8 @@ will train a Text Compression model with ppm_order = 8 and a CNG-Dist model with
 ### Evaluation Metrics
 The script to calculate metrics can also be executed directly given a ground truth directory (-t), the model's predictions directory (-p),
 an output file path (-o), the task number to focus on (-task), and the model name (-m). The input parameters should be absolute directory paths.
-Sample commands are given below:
+A sample commands for evaluating each model for task 3 is given below:
 
-```python evaluator.py -task 3 --model "Compressor" -t "../StyleChangeDetection2023predicted/CEBaseline" -p "../StyleChangeDetection2023/release" -o "../StyleChangeDetection/results"```
+```python evaluator.py -task 3 -m "Compressor" -t "../StyleChangeDetection2023/release/pan23-multi-author-analysis-dataset3/pan23-multi-author-analysis-dataset3-validation" -p "../StyleChangeDetection2023/solution/baseline/compressor/Task3" -o "../StyleChangeDetection/results"```
 
-```python evaluator.py -task 3 --model "CNG-Dist" -t "../StyleChangeDetection2023predicted/CEBaseline" -p "../StyleChangeDetection2023/release" -o "../StyleChangeDetection/results"```
+```python evaluator.py -task 3 -m "CNG-Dist" -t "../StyleChangeDetection2023/release/pan23-multi-author-analysis-dataset3/pan23-multi-author-analysis-dataset3-validation" -p "../StyleChangeDetection2023/solution/baseline/cngdist/Task3" -o "../StyleChangeDetection/results"```
