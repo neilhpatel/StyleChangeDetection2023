@@ -8,8 +8,13 @@ import os
 
 class CEBaseline():
 
-    def __init__(self, task):
+    def __init__(self, task, args):
         self.task = task
+        self.dropout = args.dropout if args.dropout else .5
+        self.num_iterations = args.num_iterations if args.num_iterations else 0
+        self.vocabulary_size = args.vocabulary_size if args.vocabulary_size else 3000
+        self.ppm_order = args.ppmOrder if args.ppmOrder else 5
+        self.ngram_size = args.ngram_size if args.ngram_size else 4
 
     def createModel(self, baseline_type):
         inputTrainingData = []
@@ -24,9 +29,10 @@ class CEBaseline():
             inputLabels.append(groundTruth)
 
         if baseline_type == "compressor":
-            baseline_compressor_train(inputTrainingData, inputLabels, f'{self.task.compressor_model_dir}/Task{self.task.task_num}.model', ppm_order=5)
+            baseline_compressor_train(inputTrainingData, inputLabels, f'{self.task.compressor_model_dir}/Task{self.task.task_num}.model', self.ppm_order)
         elif baseline_type == "cngdist":
-            baseline_cngdist_train(inputTrainingData, inputLabels, self.task.cngdist_model_dir, self.task.task_num, vocab_size=3000, ngram_size=4, num_iterations=0, dropout=0.5)
+            baseline_cngdist_train(inputTrainingData, inputLabels, self.task.cngdist_model_dir, self.task.task_num,
+                                   self.vocabulary_size, self.ngram_size, self.num_iterations, self.dropout)
         else:
             raise AssertionError("invalid baseline_type")
 
